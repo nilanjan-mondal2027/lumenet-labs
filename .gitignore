@@ -1,0 +1,17 @@
+.venv/
+
+# System files
+.DS_Store
+
+# Node / frontend build artifacts
+node_modules/
+dist/
+build/
+coverage/
+
+# Netlify local state
+.netlify/
+
+# Environment files
+.env
+.env.local

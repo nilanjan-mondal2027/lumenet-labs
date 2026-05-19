@@ -1,0 +1,13 @@
+name: Netlify Deploy (Optional)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Info
+        run: |
+          echo "Use Netlify GitHub integration for zero-build static deploy."
+          echo "This workflow is a placeholder and intentionally does not push files."

@@ -1,0 +1,12 @@
+title: Lumenet Labs Presents: Evolve with AI | Free 8-Day Live Workshop
+hero_h1: Evolve with AI
+register_links_count: 6
+modal_opened: true
+modal_closed_by_icon: true
+modal_closed_by_button: true
+faq_btn1_expanded: true
+growth_visible_cards: 3
+cookie_banner_visible: true
+mobile_menu_open: true
+mobile_menu_closed_after_link: true
+404_heading: 404
