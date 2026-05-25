@@ -256,6 +256,11 @@ ul {
   transition: opacity var(--motion-medium) ease, visibility var(--motion-medium) ease;
 }
 
+/* Loader visuals are intentionally disabled in production to avoid in-app browser rendering artifacts. */
+.page-loader {
+  display: none !important;
+}
+
 .page-loader.is-hidden {
   opacity: 0;
   visibility: hidden;
@@ -825,6 +830,16 @@ ul {
   gap: 0.45rem;
   margin-top: 0.1rem;
   margin-bottom: 0.65rem;
+}
+
+.hero-panel .check-list {
+  margin: var(--space-3) 0;
+}
+
+.hero-panel .btn-video,
+.hero-panel .qr-mini {
+  width: 100%;
+  max-width: 18rem;
 }
 
 .hero-chip {
@@ -1799,6 +1814,15 @@ ul {
 
   .hero-visual-stack {
     display: none;
+  }
+
+  .hero-panel {
+    padding: var(--space-4);
+  }
+
+  .hero-panel .btn-video,
+  .hero-panel .qr-mini {
+    max-width: 100%;
   }
 
   .hero-loop-card {
