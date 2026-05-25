@@ -1083,6 +1083,10 @@ ul {
   animation-delay: 0s;
 }
 
+.insight-marquee-track.is-duplicate {
+  display: none !important;
+}
+
 .insight-marquee-track span {
   font-size: 0.78rem;
   font-weight: 700;
@@ -1170,6 +1174,15 @@ ul {
     0 14px 34px rgba(0, 0, 0, 0.42);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+
+/* Hard-stop any legacy decorative overlays that may appear from stale cached styles */
+.schedule-card::after,
+.schedule-card .orb,
+.schedule-card .ring,
+.schedule-card [class*="orb"],
+.schedule-card [class*="ring"] {
+  display: none !important;
 }
 
 .schedule-grid {
@@ -1831,6 +1844,22 @@ ul {
 
   .insight-marquee-track {
     animation-duration: 28s;
+  }
+
+  .insight-marquee {
+    min-height: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .insight-marquee::-webkit-scrollbar {
+    display: none;
+  }
+
+  .insight-marquee-track {
+    animation: none !important;
+    padding: 0.7rem 1rem;
   }
 
   .hero-metric-row {
