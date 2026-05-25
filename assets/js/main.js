@@ -450,7 +450,16 @@
     el.dataset.splitReady = "true";
     el.setAttribute("aria-label", text);
     const words = text.split(/\s+/g);
-    el.innerHTML = words.map((word) => `<span class="hero-word">${word}</span>`).join(" ");
+    el.textContent = "";
+    words.forEach((word, index) => {
+      const span = document.createElement("span");
+      span.className = "hero-word";
+      span.textContent = word;
+      el.appendChild(span);
+      if (index < words.length - 1) {
+        el.appendChild(document.createTextNode(" "));
+      }
+    });
     return qsa(".hero-word", el);
   }
 
@@ -553,9 +562,9 @@
   const safe = (fn) => {
     try {
       fn();
-    } catch (error) {
+    } catch (_error) {
       // Keep the rest of the interaction layer alive if one module fails.
-      console.error("Init error:", error);
+      console.warn("A UI module failed to initialize safely.");
     }
   };
 

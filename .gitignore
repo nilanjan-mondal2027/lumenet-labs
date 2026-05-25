@@ -5,9 +5,12 @@
 
 # Node / frontend build artifacts
 node_modules/
+.next/
+.vercel/
 dist/
 build/
 coverage/
+*.log
 
 # Netlify local state
 .netlify/
@@ -15,6 +18,8 @@ coverage/
 # Environment files
 .env
 .env.local
+.env.*
+!.env.example
 
 # Local creative references (not needed for production deploy)
 reference/

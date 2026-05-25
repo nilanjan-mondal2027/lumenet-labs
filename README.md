@@ -45,6 +45,12 @@ No build step is required.
 - **Publish directory:** `.`
 - **Framework preset:** None / Other
 
+## Security and Privacy
+- Security hardening rules: [`SECURITY.md`](SECURITY.md)
+- Privacy validation checklist: [`PRIVACY-CHECKLIST.md`](PRIVACY-CHECKLIST.md)
+- Safe environment template: [`.env.example`](.env.example)
+- Lightweight secret scan helper: `scripts/secret_scan.sh`
+
 ## Project Structure
 - `index.html` - primary landing page
 - `404.html` - branded custom 404 page
