@@ -601,14 +601,20 @@ ul {
 }
 
 .hero-copy h1 {
-  background: linear-gradient(105deg, #f8dc8d 5%, #f1c96b 38%, #b9fff8 82%, #f8dc8d 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-gold-strong);
   filter: drop-shadow(0 0 12px rgba(241, 201, 107, 0.2));
   animation: none;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero-copy h1 {
+    background: linear-gradient(105deg, #f8dc8d 5%, #f1c96b 38%, #b9fff8 82%, #f8dc8d 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
 }
 
 .hero-metric-row {
@@ -1636,6 +1642,18 @@ ul {
 }
 
 @media (max-width: 860px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  body.is-loading {
+    overflow: auto;
+  }
+
+  .page-loader {
+    display: none !important;
+  }
+
   .mobile-nav-toggle {
     display: inline-flex;
     align-items: center;
@@ -1678,12 +1696,55 @@ ul {
     justify-content: center;
   }
 
-  .hero-bg-video-alt {
+  .hero {
+    padding-top: var(--space-6);
+  }
+
+  .hero-bg-video,
+  .hero-bg-video-alt,
+  .hero-bg-video-gold {
     display: none;
   }
 
-  .hero-bg-video-gold {
-    opacity: 0.08;
+  .hero-bg {
+    background:
+      radial-gradient(circle at 12% 8%, rgba(62, 211, 201, 0.18), transparent 36%),
+      radial-gradient(circle at 88% 14%, rgba(212, 168, 79, 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(5, 7, 10, 0.97), rgba(8, 11, 15, 0.96)),
+      url("../images/dark-gradient.jpg") center / cover no-repeat;
+  }
+
+  .hero-bg-noise {
+    background:
+      linear-gradient(180deg, rgba(6, 8, 11, 0.76), rgba(6, 8, 11, 0.96)),
+      radial-gradient(circle at 14% 9%, rgba(62, 211, 201, 0.14), transparent 34%),
+      radial-gradient(circle at 86% 15%, rgba(212, 168, 79, 0.12), transparent 34%);
+  }
+
+  .hero-dust,
+  .glow-orb,
+  .gold-arc {
+    display: none;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.95rem, 10.2vw, 2.6rem);
+    line-height: 1.08;
+  }
+
+  .hero-lead {
+    font-size: clamp(1.05rem, 5vw, 1.2rem);
+    line-height: 1.56;
+  }
+
+  .hero-facts li {
+    padding-left: 1.05rem;
+  }
+
+  .hero-facts li::before {
+    width: 0.4rem;
+    height: 0.4rem;
+    top: 0.58rem;
   }
 
   .hero-visual-stack {
@@ -1701,6 +1762,14 @@ ul {
   .hero-metric-row {
     grid-template-columns: 1fr;
     max-width: 17.5rem;
+  }
+
+  .hero-cta-row {
+    gap: 0.65rem;
+  }
+
+  .hero-cta-row .btn {
+    min-height: 2.85rem;
   }
 
   .hero-chip-row {

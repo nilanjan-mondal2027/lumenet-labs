@@ -5,6 +5,9 @@
   const EVENT_END = new Date("2026-07-08T21:30:00+05:30");
   const REGISTER_URL = "https://forms.gle/oViwgzHnwdGuMUZK9";
   const CONSENT_KEY = "lumenet_cookie_consent_v1";
+  const userAgent = navigator.userAgent || "";
+  const isInAppBrowser = /Instagram|FBAN|FBAV|FB_IAB|Line|Twitter/i.test(userAgent);
+  const isSmallScreen = window.matchMedia("(max-width: 860px)").matches;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const connection = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
   const isPerformanceLite =
@@ -25,7 +28,7 @@
       document.body.classList.remove("is-loading");
     };
 
-    if (reducedMotion) {
+    if (reducedMotion || (isInAppBrowser && isSmallScreen)) {
       finish();
       return;
     }
@@ -42,7 +45,10 @@
   }
 
   function initPerformanceMode() {
-    if (!isPerformanceLite) return;
+    if (isInAppBrowser) {
+      document.body.classList.add("in-app-browser");
+    }
+    if (!isPerformanceLite && !(isInAppBrowser && isSmallScreen)) return;
     document.body.classList.add("performance-lite");
   }
 
@@ -374,14 +380,16 @@
   function initAmbientVideos() {
     const videos = qsa("[data-ambient-video]");
     if (!videos.length) return;
+    const disableAmbient = isPerformanceLite || (isInAppBrowser && isSmallScreen);
 
-    if (isPerformanceLite) {
-      qsa("video[data-ambient-heavy='true']").forEach((video) => {
+    if (disableAmbient) {
+      videos.forEach((video) => {
         if (!(video instanceof HTMLVideoElement)) return;
         qsa("source", video).forEach((source) => source.removeAttribute("src"));
         video.pause();
         video.load();
       });
+      return;
     }
 
     videos.forEach((video) => {
