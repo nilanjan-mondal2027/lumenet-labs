@@ -6,10 +6,45 @@
   const REGISTER_URL = "https://forms.gle/oViwgzHnwdGuMUZK9";
   const CONSENT_KEY = "lumenet_cookie_consent_v1";
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const connection = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
+  const isPerformanceLite =
+    !!(connection && connection.saveData) ||
+    (typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 4) ||
+    (typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4);
   const hasGsap = typeof window !== "undefined" && typeof window.gsap === "object";
 
   const qs = (selector, scope = document) => scope.querySelector(selector);
   const qsa = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
+
+  function initLoader() {
+    const loader = qs("[data-loader]");
+    if (!loader) return;
+
+    const finish = () => {
+      loader.classList.add("is-hidden");
+      document.body.classList.remove("is-loading");
+    };
+
+    if (reducedMotion) {
+      finish();
+      return;
+    }
+
+    const fallbackTimer = window.setTimeout(finish, 2400);
+    window.addEventListener(
+      "load",
+      () => {
+        window.clearTimeout(fallbackTimer);
+        window.setTimeout(finish, 500);
+      },
+      { once: true }
+    );
+  }
+
+  function initPerformanceMode() {
+    if (!isPerformanceLite) return;
+    document.body.classList.add("performance-lite");
+  }
 
   function initMobileNav() {
     const toggle = qs("[data-mobile-toggle]");
@@ -306,7 +341,7 @@
   }
 
   function initReveal() {
-    if (hasGsap && !reducedMotion) return;
+    if (hasGsap && !reducedMotion && !isPerformanceLite) return;
     const nodes = qsa(".reveal");
     if (!nodes.length) return;
 
@@ -336,6 +371,50 @@
     });
   }
 
+  function initAmbientVideos() {
+    const videos = qsa("[data-ambient-video]");
+    if (!videos.length) return;
+
+    if (isPerformanceLite) {
+      qsa("video[data-ambient-heavy='true']").forEach((video) => {
+        if (!(video instanceof HTMLVideoElement)) return;
+        qsa("source", video).forEach((source) => source.removeAttribute("src"));
+        video.pause();
+        video.load();
+      });
+    }
+
+    videos.forEach((video) => {
+      if (!(video instanceof HTMLVideoElement)) return;
+      if (isPerformanceLite && video.dataset.ambientHeavy === "true") return;
+      video.muted = true;
+      video.playsInline = true;
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
+    });
+
+    if (typeof IntersectionObserver !== "function") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (!(video instanceof HTMLVideoElement)) return;
+          if (isPerformanceLite && video.dataset.ambientHeavy === "true") return;
+          if (entry.isIntersecting) {
+            const promise = video.play();
+            if (promise && typeof promise.catch === "function") promise.catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    videos.forEach((video) => observer.observe(video));
+  }
+
   function initScrollProgress() {
     const root = document.body;
     if (!root) return;
@@ -353,11 +432,15 @@
   }
 
   function initCursorGlow() {
-    // Cursor glow intentionally disabled for cleaner premium motion profile.
+    // Disabled to keep motion elegant and lightweight.
+  }
+
+  function initPointerSpotlight() {
+    // Disabled to avoid extra visual FX layering.
   }
 
   function initTiltCards() {
-    // Card tilt intentionally disabled for cleaner and more stable UX.
+    // Disabled to keep interaction smooth on all devices.
   }
 
   function splitHeadlineWords(el) {
@@ -372,7 +455,7 @@
   }
 
   function initGsapExperience() {
-    if (!hasGsap || reducedMotion) return;
+    if (!hasGsap || reducedMotion || isPerformanceLite) return;
     const gsap = window.gsap;
     const scrollTriggerPlugin = window.ScrollTrigger;
     if (scrollTriggerPlugin) gsap.registerPlugin(scrollTriggerPlugin);
@@ -428,11 +511,43 @@
       });
     });
 
-    // Hero pointer parallax removed to keep interaction polished but lightweight.
+    qsa(".section-head").forEach((head) => {
+      gsap.fromTo(
+        head,
+        { y: 28, opacity: 0.35 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.05,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: head,
+            start: "top 88%",
+            scrub: false,
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    });
+
+    qsa(".section-video-backdrop video").forEach((bgVideo) => {
+      gsap.to(bgVideo, {
+        yPercent: -8,
+        ease: "none",
+        scrollTrigger: {
+          trigger: bgVideo.closest(".section"),
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+    });
+
+    // Intentionally keeping hero interactions minimal for a cleaner premium feel.
   }
 
   function initMagneticButtons() {
-    // Magnetic button behavior removed for smoother baseline performance.
+    // Disabled to keep CTA behavior consistent and predictable.
   }
 
   const safe = (fn) => {
@@ -444,6 +559,8 @@
     }
   };
 
+  safe(initPerformanceMode);
+  safe(initLoader);
   safe(initMobileNav);
   safe(initSmoothAnchors);
   safe(initActiveNav);
@@ -456,9 +573,11 @@
   safe(initCookieConsent);
   safe(initReveal);
   safe(initExternalRegistrationLinks);
+  safe(initAmbientVideos);
   safe(initGsapExperience);
   safe(initScrollProgress);
   safe(initCursorGlow);
+  safe(initPointerSpotlight);
   safe(initTiltCards);
   safe(initMagneticButtons);
 })();
