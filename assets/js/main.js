@@ -6,45 +6,10 @@
   const REGISTER_URL = "https://forms.gle/oViwgzHnwdGuMUZK9";
   const CONSENT_KEY = "lumenet_cookie_consent_v1";
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const connection = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
-  const isPerformanceLite =
-    !!(connection && connection.saveData) ||
-    (typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 4) ||
-    (typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4);
   const hasGsap = typeof window !== "undefined" && typeof window.gsap === "object";
 
   const qs = (selector, scope = document) => scope.querySelector(selector);
   const qsa = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
-
-  function initLoader() {
-    const loader = qs("[data-loader]");
-    if (!loader) return;
-
-    const finish = () => {
-      loader.classList.add("is-hidden");
-      document.body.classList.remove("is-loading");
-    };
-
-    if (reducedMotion) {
-      finish();
-      return;
-    }
-
-    const fallbackTimer = window.setTimeout(finish, 2400);
-    window.addEventListener(
-      "load",
-      () => {
-        window.clearTimeout(fallbackTimer);
-        window.setTimeout(finish, 500);
-      },
-      { once: true }
-    );
-  }
-
-  function initPerformanceMode() {
-    if (!isPerformanceLite) return;
-    document.body.classList.add("performance-lite");
-  }
 
   function initMobileNav() {
     const toggle = qs("[data-mobile-toggle]");
@@ -341,7 +306,7 @@
   }
 
   function initReveal() {
-    if (hasGsap && !reducedMotion && !isPerformanceLite) return;
+    if (hasGsap && !reducedMotion) return;
     const nodes = qsa(".reveal");
     if (!nodes.length) return;
 
@@ -371,50 +336,6 @@
     });
   }
 
-  function initAmbientVideos() {
-    const videos = qsa("[data-ambient-video]");
-    if (!videos.length) return;
-
-    if (isPerformanceLite) {
-      qsa("video[data-ambient-heavy='true']").forEach((video) => {
-        if (!(video instanceof HTMLVideoElement)) return;
-        qsa("source", video).forEach((source) => source.removeAttribute("src"));
-        video.pause();
-        video.load();
-      });
-    }
-
-    videos.forEach((video) => {
-      if (!(video instanceof HTMLVideoElement)) return;
-      if (isPerformanceLite && video.dataset.ambientHeavy === "true") return;
-      video.muted = true;
-      video.playsInline = true;
-      const playPromise = video.play();
-      if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
-    });
-
-    if (typeof IntersectionObserver !== "function") return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target;
-          if (!(video instanceof HTMLVideoElement)) return;
-          if (isPerformanceLite && video.dataset.ambientHeavy === "true") return;
-          if (entry.isIntersecting) {
-            const promise = video.play();
-            if (promise && typeof promise.catch === "function") promise.catch(() => {});
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    videos.forEach((video) => observer.observe(video));
-  }
-
   function initScrollProgress() {
     const root = document.body;
     if (!root) return;
@@ -432,81 +353,11 @@
   }
 
   function initCursorGlow() {
-    if (reducedMotion || isPerformanceLite || window.matchMedia("(hover: none)").matches) return;
-    const glow = document.createElement("div");
-    glow.className = "cursor-glow";
-    glow.setAttribute("aria-hidden", "true");
-    document.body.appendChild(glow);
-
-    let raf = 0;
-    const point = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-
-    const paint = () => {
-      glow.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) translate(-50%, -50%)`;
-      raf = 0;
-    };
-
-    const queuePaint = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(paint);
-    };
-
-    const onMove = (event) => {
-      point.x = event.clientX;
-      point.y = event.clientY;
-      glow.classList.add("is-visible");
-      queuePaint();
-    };
-
-    document.addEventListener("pointermove", onMove, { passive: true });
-    document.addEventListener("pointerleave", () => glow.classList.remove("is-visible"));
-  }
-
-  function initPointerSpotlight() {
-    if (reducedMotion || isPerformanceLite || window.matchMedia("(hover: none)").matches) return;
-    const root = document.documentElement;
-    if (!root) return;
-
-    const update = (event) => {
-      const x = (event.clientX / window.innerWidth) * 100;
-      const y = (event.clientY / window.innerHeight) * 100;
-      root.style.setProperty("--pointer-x", `${x.toFixed(2)}%`);
-      root.style.setProperty("--pointer-y", `${y.toFixed(2)}%`);
-    };
-
-    document.addEventListener("pointermove", update, { passive: true });
+    // Cursor glow intentionally disabled for cleaner premium motion profile.
   }
 
   function initTiltCards() {
-    if (reducedMotion || isPerformanceLite || window.matchMedia("(hover: none)").matches || window.innerWidth < 900) return;
-    const cards = qsa(".card, .hero-panel");
-    if (!cards.length) return;
-
-    cards.forEach((card) => {
-      card.setAttribute("data-tilt", "true");
-
-      const onMove = (event) => {
-        const rect = card.getBoundingClientRect();
-        if (!rect.width || !rect.height) return;
-
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const rotateY = ((x / rect.width) * 2 - 1) * 4;
-        const rotateX = (((y / rect.height) * 2 - 1) * -1) * 3;
-
-        card.style.setProperty("--tilt-x", `${rotateX.toFixed(2)}deg`);
-        card.style.setProperty("--tilt-y", `${rotateY.toFixed(2)}deg`);
-      };
-
-      const reset = () => {
-        card.style.setProperty("--tilt-x", "0deg");
-        card.style.setProperty("--tilt-y", "0deg");
-      };
-
-      card.addEventListener("pointermove", onMove);
-      card.addEventListener("pointerleave", reset);
-      card.addEventListener("pointercancel", reset);
-    });
+    // Card tilt intentionally disabled for cleaner and more stable UX.
   }
 
   function splitHeadlineWords(el) {
@@ -521,7 +372,7 @@
   }
 
   function initGsapExperience() {
-    if (!hasGsap || reducedMotion || isPerformanceLite) return;
+    if (!hasGsap || reducedMotion) return;
     const gsap = window.gsap;
     const scrollTriggerPlugin = window.ScrollTrigger;
     if (scrollTriggerPlugin) gsap.registerPlugin(scrollTriggerPlugin);
@@ -577,103 +428,11 @@
       });
     });
 
-    qsa(".section-head").forEach((head) => {
-      gsap.fromTo(
-        head,
-        { y: 28, opacity: 0.35 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1.05,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: head,
-            start: "top 88%",
-            scrub: false,
-            toggleActions: "play none none none"
-          }
-        }
-      );
-    });
-
-    qsa(".section-video-backdrop video").forEach((bgVideo) => {
-      gsap.to(bgVideo, {
-        yPercent: -8,
-        ease: "none",
-        scrollTrigger: {
-          trigger: bgVideo.closest(".section"),
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true
-        }
-      });
-    });
-
-    if (qs(".site-fx__beams")) {
-      gsap.to(".site-fx__beams", {
-        opacity: 0.2,
-        scale: 1.05,
-        duration: 4.2,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
-    }
-
-    if (!window.matchMedia("(hover: none)").matches) {
-      const layers = [
-        { el: qs(".glow-orb-a"), factorX: 18, factorY: 14 },
-        { el: qs(".glow-orb-b"), factorX: -16, factorY: -12 },
-        { el: qs(".gold-arc"), factorX: 12, factorY: 8 },
-        { el: qs(".hero-panel"), factorX: 10, factorY: 10 }
-      ].filter((item) => item.el);
-
-      hero.addEventListener("pointermove", (event) => {
-        const rect = hero.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - 0.5;
-        const y = (event.clientY - rect.top) / rect.height - 0.5;
-
-        layers.forEach((layer) => {
-          gsap.to(layer.el, {
-            x: x * layer.factorX,
-            y: y * layer.factorY,
-            duration: 0.75,
-            ease: "power3.out"
-          });
-        });
-      });
-
-      hero.addEventListener("pointerleave", () => {
-        layers.forEach((layer) => {
-          gsap.to(layer.el, { x: 0, y: 0, duration: 0.9, ease: "power3.out" });
-        });
-      });
-    }
+    // Hero pointer parallax removed to keep interaction polished but lightweight.
   }
 
   function initMagneticButtons() {
-    if (reducedMotion || isPerformanceLite || !hasGsap || window.matchMedia("(hover: none)").matches) return;
-    const gsap = window.gsap;
-    const targets = qsa(".btn-primary, .btn-video, .nav-cta");
-    if (!targets.length) return;
-
-    targets.forEach((button) => {
-      const xTo = gsap.quickTo(button, "x", { duration: 0.35, ease: "power3.out" });
-      const yTo = gsap.quickTo(button, "y", { duration: 0.35, ease: "power3.out" });
-
-      button.addEventListener("pointermove", (event) => {
-        const rect = button.getBoundingClientRect();
-        const x = event.clientX - rect.left - rect.width / 2;
-        const y = event.clientY - rect.top - rect.height / 2;
-        xTo(x * 0.12);
-        yTo(y * 0.2);
-      });
-
-      button.addEventListener("pointerleave", () => {
-        xTo(0);
-        yTo(0);
-      });
-    });
+    // Magnetic button behavior removed for smoother baseline performance.
   }
 
   const safe = (fn) => {
@@ -685,8 +444,6 @@
     }
   };
 
-  safe(initPerformanceMode);
-  safe(initLoader);
   safe(initMobileNav);
   safe(initSmoothAnchors);
   safe(initActiveNav);
@@ -699,11 +456,9 @@
   safe(initCookieConsent);
   safe(initReveal);
   safe(initExternalRegistrationLinks);
-  safe(initAmbientVideos);
   safe(initGsapExperience);
   safe(initScrollProgress);
   safe(initCursorGlow);
-  safe(initPointerSpotlight);
   safe(initTiltCards);
   safe(initMagneticButtons);
 })();
