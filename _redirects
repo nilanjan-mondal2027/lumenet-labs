@@ -1,3 +1,5 @@
-/live /index.html?v=20260525f 302
-/refresh /index.html?v=20260525f 302
+/register https://docs.google.com/forms/d/e/1FAIpQLSeDVzOZRa7Wltxo0KVpDZaRwOVljjysP6djv6Yxxqyx-yvAIw/viewform?usp=send_form 302
+/registration https://docs.google.com/forms/d/e/1FAIpQLSeDVzOZRa7Wltxo0KVpDZaRwOVljjysP6djv6Yxxqyx-yvAIw/viewform?usp=send_form 302
+/live /index.html?v=20260602b 302
+/refresh /index.html?v=20260602b 302
 /* /404.html 404

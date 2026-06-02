@@ -1,78 +1,90 @@
-# Lumenet Labs — Evolve with AI
+# Lumenet Labs: Beyond Answers
 
-Live website: [https://lumenet-labs.netlify.app](https://lumenet-labs.netlify.app)
+A premium, lightweight landing page for **Lumenet Labs Presents: Evolve with AI**, a free live 8-day AI workshop for students and early builders.
 
-This project is a premium, conversion-focused launch website for **Lumenet Labs Presents: Evolve with AI**.  
-It is designed to feel high-trust, high-clarity, and high-performance for students, parents, and early professionals discovering practical AI learning.
+The site is designed around one strategic idea: **Beyond Answers**. It positions Lumenet Labs as more than prompt tips or AI hype. The experience moves visitors from scattered AI use toward workflows, systems, and practical outcomes.
 
-## What Makes This Build Strong
-- Clear event-first messaging with repeated conversion CTAs.
-- Premium black-gold-cyan visual system without heavy frameworks.
-- Mobile-first responsive layout for real-world student usage.
-- Accessibility-minded structure (semantic HTML, keyboard-friendly interactions, readable contrast).
-- Fast static delivery for reliable performance on low bandwidth.
+## What This Website Is
 
-## Built With
-- **HTML5** for semantic page structure and SEO-friendly markup.
-- **Modern CSS3** for design tokens, responsive grids, motion, and premium visual styling.
-- **Vanilla JavaScript (ES6+)** for interactions:
-  - sticky/active navigation
-  - mobile menu behavior
-  - countdown states
-  - FAQ accordion
-  - video modal handling
-  - cookie-consent hooks
-- **Python tooling (optional, local only)** for generating and processing video assets.
+This is a static, Netlify-ready website built with:
 
-## Architecture
-- **Project type:** Static website (no framework runtime).
-- **Frontend stack:** Plain HTML + CSS + JS.
-- **Build requirement:** None.
-- **Deployment model:** Git-based static hosting on Netlify.
+- **HTML** for semantic structure
+- **CSS** for the full visual system, responsive layout, typography, and motion
+- **Vanilla JavaScript** for the mobile menu, reveal animations, registration link handling, copy shortcut, and lightweight canvas signal field
+- **Netlify redirects and headers** for production routing, security headers, and cache control
 
-## Run Locally
+There is no React, Next.js, Vite, backend server, database, paid API, or heavy animation framework required.
+
+## Design Direction
+
+The website uses a restrained editorial brand world:
+
+- Deep near-black backgrounds
+- Metallic gold hierarchy
+- Muted neutral reading text
+- Soft cyan signal accents
+- Large expressive typography
+- Lightweight canvas particles that suggest intelligence forming from noise
+- Mobile-first layouts built for Instagram's in-app browser
+
+The goal is premium without being bloated.
+
+## Event Details
+
+- **Event:** Lumenet Labs Presents: Evolve with AI
+- **Concept:** Beyond Answers
+- **Dates:** 1 July to 8 July 2026
+- **Time:** 7:30 PM to 9:30 PM IST
+- **Format:** Live online via Zoom
+- **Duration:** 8 days, 16 total guided hours
+- **Cost:** Free
+- **Certificate:** Available for active participants
+
+## Registration
+
+Primary registration goes to the Google Form:
+
+`https://docs.google.com/forms/d/e/1FAIpQLSeDVzOZRa7Wltxo0KVpDZaRwOVljjysP6djv6Yxxqyx-yvAIw/viewform?usp=send_form`
+
+## Local Preview
+
+From the project folder:
+
 ```bash
-cd /Users/nilanjanmondal/Downloads/lumenet-evolve-ai
-python3 -m http.server 8080
+python3 -m http.server 8090
 ```
-Open: [http://localhost:8080](http://localhost:8080)
+
+Then open:
+
+```text
+http://127.0.0.1:8090/index.html
+```
 
 ## Build
+
 No build step is required.
 
-## Netlify Deployment Settings
-- **Build command:** *(leave empty)*
+## Netlify Settings
+
+- **Build command:** leave empty
 - **Publish directory:** `.`
-- **Framework preset:** None / Other
+- **Deploy source:** GitHub repository
+- **Branch:** `main`
 
-## Security and Privacy
-- Security hardening rules: [`SECURITY.md`](SECURITY.md)
-- Privacy validation checklist: [`PRIVACY-CHECKLIST.md`](PRIVACY-CHECKLIST.md)
-- Safe environment template: [`.env.example`](.env.example)
-- Lightweight secret scan helper: `scripts/secret_scan.sh`
+Netlify should automatically redeploy whenever `main` is pushed.
 
-## Project Structure
-- `index.html` - primary landing page
-- `404.html` - branded custom 404 page
-- `assets/css/styles.css` - full design system and responsive styling
-- `assets/js/main.js` - all interactive behaviors
-- `assets/img/` - logo, OG image, QR, and image assets
-- `assets/video/` - trailers, intros, captions, and source artifacts
-- `docs/` - complete strategy, UX, content, SEO, QA, and launch documentation
-- `netlify.toml`, `_headers`, `_redirects` - production deployment configuration
+## Production Files
 
-## Optional Video Regeneration (Local)
-```bash
-cd /Users/nilanjanmondal/Downloads/lumenet-evolve-ai
-python3 -m venv .venv
-. .venv/bin/activate
-pip install pillow numpy imageio imageio-ffmpeg
-python scripts/generate_videos.py
-```
+- `index.html`: homepage
+- `404.html`: branded custom error page
+- `assets/css/styles.css`: design system and responsive styling
+- `assets/js/main.js`: lightweight interaction layer
+- `_redirects`: registration redirect and custom 404 behavior
+- `_headers`: security and cache headers
+- `assets/img/`: favicon, social image, and optional QR image
 
-## Quality Checklist Before Launch
-1. Confirm all registration CTA links open the correct Google Form in a new tab.
-2. Verify modal video open/close behavior on desktop and mobile.
-3. Verify countdown state and FAQ accordion behavior.
-4. Validate metadata, social preview image, and canonical URLs.
-5. Run a final Netlify production check after each push.
+## Privacy And Security
+
+The site does not collect user data directly. Registration happens through Google Forms. The website does not include analytics by default, does not use cookies for tracking, and does not expose API keys or backend credentials.
+
+See `SECURITY.md` and `PRIVACY-CHECKLIST.md` for deployment safety notes.
