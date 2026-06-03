@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lumenet-labs.netlify.app/sitemap.xml
+Sitemap: https://lumenet-labs.pages.dev/sitemap.xml
