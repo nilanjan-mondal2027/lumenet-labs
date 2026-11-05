@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import { HumanSignalLab } from "../components/human-signal-lab";
+import { LumenetFilm } from "../components/lumenet-film";
 import { RevealController } from "../components/signal-field";
 import { WorkflowConsole } from "../components/workflow-console";
 import { starterKits, workshop } from "../content/site";
@@ -36,27 +36,27 @@ export default function Home() {
   return <main id="main-content">
     <RevealController/>
     <section className="cinematic-hero" id="top">
-      <div className="hero-orbit hero-orbit-a" aria-hidden="true"/><div className="hero-orbit hero-orbit-b" aria-hidden="true"/>
+      <div className="hero-orbit hero-orbit-a" aria-hidden="true"/><div className="hero-orbit hero-orbit-b" aria-hidden="true"/><div className="hero-index" aria-hidden="true"><span>FIELD</span><span>25.11.26</span></div>
       <div className="hero-wrap">
         <div className="hero-copy">
-          <p className="eyebrow reveal">Lumenet Labs / Practical AI education</p>
-          <h1 className="hero-title"><span className="hero-title-line">Beyond</span><span className="hero-title-line hero-title-accent">answers.</span></h1>
-          <p className="hero-lede">AI is only useful when it helps you think, build, and act with more clarity. Lumenet Labs teaches the system around the answer.</p>
+          <p className="eyebrow reveal">Beyond answers / Practical AI education</p>
+          <h1 className="hero-title"><span className="hero-title-line">Make the</span><span className="hero-title-line hero-title-accent">answer</span><span className="hero-title-line">do more.</span></h1>
+          <p className="hero-lede">Lumenet is a practical AI learning lab for people who want research, workflows, and ideas to become useful work. The tool is only one part of the system.</p>
           <div className="hero-actions"><a className="button button-primary" href="/register">Register for 25 November <Arrow/></a><a className="button button-quiet" href="#inside-lab">Explore the method</a></div>
           <div className="hero-facts" aria-label="Workshop facts"><span>25 November 2026</span><span>Registration open</span><span>Human judgement first</span></div>
         </div>
-        <HumanSignalLab/>
+        <LumenetFilm/>
       </div>
       <a className="hero-scroll" href="#signal"><span>Scroll to enter</span><i aria-hidden="true"/></a>
     </section>
 
-    <section className="signal-section section-shell" id="signal">
-      <div className="signal-copy reveal"><p className="eyebrow">The Lumenet signal</p><h2>AI is not the advantage. The system you build around it is.</h2></div>
+    <section className="signal-section section-shell" id="signal"><div className="signal-index" aria-hidden="true">SIGNAL<br/>001</div>
+      <div className="signal-copy reveal"><p className="eyebrow">The Lumenet signal</p><h2>The advantage is not AI. It is the method you build around it.</h2></div>
       <div className="signal-notes reveal"><p>We work with learners who want structure over noise and outcomes over endless tool hopping.</p><p>Every session is designed to end with a usable artefact: a worksheet, a source map, a guided workflow, or an implementation asset.</p></div>
       <div className="principle-rail" aria-label="Lumenet principles"><span>Research carefully</span><span>Build visibly</span><span>Review honestly</span><span>Keep people in charge</span></div>
     </section>
 
-    <section className="ecosystem-section section-shell" id="ecosystem">
+    <section className="ecosystem-section section-shell" id="ecosystem"><div className="section-rule" aria-hidden="true"><span>THE LUMENET ECOSYSTEM</span><i/></div>
       <div className="section-kicker reveal"><p className="eyebrow">The Lumenet ecosystem</p><p>One learning loop, connected to the work beyond it.</p></div>
       <div className="ecosystem-layout">
         <div className="ecosystem-map reveal" aria-hidden="true"><div className="map-core"><span>LL</span><small>signal</small></div>{ecosystem.map(([number, label]) => <div className={`map-point point-${number}`} key={number}><span>{number}</span><b>{label}</b></div>)}<svg viewBox="0 0 620 620"><path d="M310 310C174 238 163 165 120 120M310 310C460 229 493 151 513 118M310 310C440 375 484 462 508 506M310 310C175 393 157 465 112 506"/></svg></div>
@@ -66,17 +66,17 @@ export default function Home() {
 
     <section className="lab-section section-shell" id="inside-lab"><WorkflowConsole/></section>
 
-    <section className="kits-section section-shell" id="resources">
+    <section className="kits-section section-shell" id="resources"><div className="section-rule" aria-hidden="true"><span>TAKE THE WORK WITH YOU</span><i/></div>
       <div className="section-header reveal"><div><p className="eyebrow">Free starter kits</p><h2>Useful before the first session.</h2></div><p>Original Lumenet resources for building a more useful AI practice today.</p></div>
       <div className="kit-grid">{starterKits.map((kit, index) => <article className={`kit-card kit-${index + 1} reveal`} key={kit.slug}><div className="kit-visual" aria-hidden="true"><span className="kit-code">0{index + 1}</span><div className="kit-paper"><i/><i/><i/><i/></div><div className="kit-orbit"/></div><div className="kit-content"><p className="kit-kind">Lumenet resource</p><h3>{kit.title}</h3><p>{kit.summary}</p><div className="kit-actions"><a href={kit.file} download>Download PDF <Arrow/></a><a className="kit-detail" href={`/resources/${kit.slug}`}>Details</a></div></div></article>)}</div>
     </section>
 
-    <section className="programmes-section section-shell" id="programmes">
+    <section className="programmes-section section-shell" id="programmes"><div className="section-rule" aria-hidden="true"><span>PROGRAMME DESK</span><i/></div>
       <div className="programme-feature reveal"><div className="programme-visual" aria-hidden="true"><div className="date-window"><span>25</span><small>NOV</small><i>2026</i></div><div className="programme-pulse"/></div><div className="programme-copy"><p className="eyebrow">Upcoming workshop</p><h2>Evolve with AI</h2><p>Move from casual tool use to practical, reviewable systems for research, study, projects, and responsible execution.</p><dl><div><dt>Date</dt><dd>{workshop.dateLabel}</dd></div><div><dt>Status</dt><dd>{workshop.status}</dd></div></dl><div className="button-row"><a className="button button-primary" href="/register">Register now <Arrow/></a><a className="button button-quiet" href="/workshops/2026-11-25">Workshop note</a></div></div></div>
       <div className="archive-list">{archive.map(([status, title, text], index) => <article className="archive-item reveal" key={title}><span className={`archive-status status-${index}`}>{status}</span><h3>{title}</h3><p>{text}</p>{index === 0 ? <a href="/programs/evolve-with-ai">Explore program <Arrow/></a> : <span className="archive-note">Public detail pending review</span>}</article>)}</div>
     </section>
 
-    <section className="projects-section section-shell" id="projects">
+    <section className="projects-section section-shell" id="projects"><div className="section-rule" aria-hidden="true"><span>WORK IN PROGRESS</span><i/></div>
       <div className="section-header reveal"><div><p className="eyebrow">Projects and case studies</p><h2>Build in the open. Publish with care.</h2></div><p>We mark the state of work clearly. Plans are not outcomes, and private records never become public proof.</p></div>
       <div className="project-grid">{projects.map(([status, title, text, href], index) => <a className={`project-card project-${index + 1} reveal`} href={href} key={title}><div className="project-top"><span>{status}</span><span>0{index + 1}</span></div><div className="project-graphic" aria-hidden="true"><i/><i/><i/></div><div><h3>{title}</h3><p>{text}</p></div><Arrow/></a>)}</div>
     </section>
