@@ -25,3 +25,13 @@ coverage/
 reference/
 assets/brand/
 .backups/
+
+.dev.vars
+.wrangler/
+tmp/
+output/
+.react-router/
+test-results/
+playwright-report/
+*.tsbuildinfo
+worker-configuration.d.ts

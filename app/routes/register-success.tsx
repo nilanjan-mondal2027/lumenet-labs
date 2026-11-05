@@ -1,0 +1,5 @@
+import type { Route } from "./+types/register-success";import { PageHero } from "../components/page";
+import { pageMeta } from "../lib/seo";
+export const meta=()=>pageMeta("Registration saved | Lumenet Labs","Private registration confirmation.","/register/success",true);
+export function loader({request}:Route.LoaderArgs){const id=new URL(request.url).searchParams.get("id");if(!id||!/^LUM-[A-Z0-9]{12}$/.test(id))throw new Response("Missing registration",{status:400});return {id}}
+export default function Success({loaderData}:Route.ComponentProps){return <main id="main-content"><PageHero eyebrow="Registration saved" title="Your place in the process is recorded." intro="Keep the registration ID below. A confirmation or guardian consent message will follow according to the age band selected."><div className="button-row"><span className="button button-quiet">{loaderData.id}</span><a className="button button-primary" href={`/registration/status/${loaderData.id}`}>Check status</a></div></PageHero></main>}

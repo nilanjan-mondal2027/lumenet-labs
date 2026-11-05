@@ -47,10 +47,10 @@
 
 # 7. Spacing and Grid Guidelines
 - Container max width: ~1180px.
-- Vertical section rhythm: 56–80px range.
-- Card padding: 20–28px.
+- Vertical section rhythm: 56-80px range.
+- Card padding: 20-28px.
 - Mobile side gutters: 16px.
-- Desktop gutters: 24–32px.
+- Desktop gutters: 24-32px.
 
 # 8. CTA Placement Map
 - Header CTA

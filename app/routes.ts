@@ -1,0 +1,28 @@
+import { type RouteConfig, index, route } from "@react-router/dev/routes";
+
+export default [
+  index("routes/home.tsx"),
+  route("programs", "routes/programs.tsx"),
+  route("programs/evolve-with-ai", "routes/evolve.tsx"),
+  route("workshops", "routes/workshops.tsx"),
+  route("workshops/2026-11-25", "routes/workshop.tsx"),
+  route("register", "routes/register.tsx"),
+  route("register/success", "routes/register-success.tsx"),
+  route("registration/status/:publicId", "routes/registration-status.tsx"),
+  route("consent/guardian", "routes/guardian-consent.tsx"),
+  route("resources", "routes/resources.tsx"),
+  route("resources/:slug", "routes/resource-detail.tsx"),
+  route("projects", "routes/projects.tsx"),
+  route("projects/ekya", "routes/ekya.tsx"),
+  route("community", "routes/community.tsx"),
+  route("about", "routes/about.tsx"),
+  route("contact", "routes/contact.tsx"),
+  route("privacy", "routes/privacy.tsx"),
+  route("terms", "routes/terms.tsx"),
+  route("organizer/login", "routes/organizer-login.tsx"),
+  route("organizer", "routes/organizer.tsx"),
+  route("organizer/export", "routes/organizer-export.tsx"),
+  route("robots.txt", "routes/robots.ts"),
+  route("sitemap.xml", "routes/sitemap.ts"),
+  route("*", "routes/not-found.tsx"),
+] satisfies RouteConfig;
