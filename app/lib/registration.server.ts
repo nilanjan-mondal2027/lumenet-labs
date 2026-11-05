@@ -30,7 +30,8 @@ async function sha256(value: string) { return hex(await crypto.subtle.digest("SH
 export function publicId() { return `LUM-${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`; }
 
 export async function verifyTurnstile(token: string, request: Request) {
-  if (env.ENVIRONMENT === "development" || env.ENVIRONMENT === "test") return true;
+  const environment = String(env.ENVIRONMENT);
+  if (environment === "development" || environment === "test") return true;
   if (!env.TURNSTILE_SECRET_KEY || !token) return false;
   const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: new URLSearchParams({ secret: env.TURNSTILE_SECRET_KEY, response: token, remoteip: request.headers.get("CF-Connecting-IP") || "" }), signal: AbortSignal.timeout(5000) });
   if (!response.ok) return false;

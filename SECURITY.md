@@ -11,7 +11,7 @@ Set production secrets with Wrangler or the Cloudflare dashboard:
 - `TURNSTILE_SECRET_KEY`
 - `RATE_LIMIT_SECRET`
 - `SESSION_SECRET`
-- `ORGANIZER_PASSWORD_HASH`
+- `ORGANIZER_PASSWORD`
 - `RESEND_API_KEY`
 
 Never commit `.dev.vars`, `.env`, exports, database files, provider tokens, passwords, or participant data. `.env.example` and `.dev.vars.example` contain names and placeholders only.
@@ -26,7 +26,7 @@ If a real credential is exposed, rotate it immediately, inspect Git history, and
 - Salted IP hash rate limiting with short retention
 - Idempotency keys and unique active email index
 - Guardian approval for under 18 registrations
-- PBKDF2 organizer password verification
+- Server-only organizer password verification with constant-time comparison
 - HMAC-signed HttpOnly Secure SameSite Strict session cookie
 - Origin check on organizer login
 - Organizer authentication on personal data export

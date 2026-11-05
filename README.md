@@ -45,7 +45,7 @@ Required Worker secrets:
 - `TURNSTILE_SECRET_KEY`
 - `RATE_LIMIT_SECRET`
 - `SESSION_SECRET`
-- `ORGANIZER_PASSWORD_HASH`
+- `ORGANIZER_PASSWORD`
 - `RESEND_API_KEY`
 
 Public variables in `wrangler.jsonc`:
@@ -55,11 +55,7 @@ Public variables in `wrangler.jsonc`:
 - `TURNSTILE_SITE_KEY`
 - `RESEND_FROM`
 
-Generate the organizer PBKDF2 hash locally, then place only the resulting value in a Cloudflare Worker secret. Never commit the plain password or generated hash.
-
-```bash
-npm run organizer:hash
-```
+Set `ORGANIZER_PASSWORD` only as a Cloudflare Worker secret. Use a unique password of at least 20 characters. It is never committed or sent to the browser. Login attempts are rate limited and successful sessions are signed, HttpOnly, Secure, and SameSite Strict.
 
 ## Content updates
 
