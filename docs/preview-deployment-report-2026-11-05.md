@@ -72,6 +72,7 @@ No approved AdQuadra content or connection is present in the source content. No 
 | Browser end-to-end suite | Passed: 8 tests including accessibility and guardian flow checks |
 | `npm audit --audit-level=high` | Passed: zero high severity vulnerabilities |
 | Desktop, tablet, mobile visual QA | Passed in two full rendered loops at 1440px, 768px, and 390px |
+| Norton Neo preview check | Passed after dismissing Neo's password-save sheet, which temporarily covered the rendered page after Basic Auth |
 | Horizontal overflow test at 390px | Passed |
 | Serious or critical axe violations | None found on tested public routes |
 
