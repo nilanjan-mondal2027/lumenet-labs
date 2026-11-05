@@ -14,6 +14,7 @@
     "db:seed:local": "wrangler d1 execute lumenet-platform-preview --local --file=./seed/preview.sql",
     "deploy": "npm run build && wrangler deploy",
     "preview": "npm run build && vite preview",
+    "organizer:hash": "node scripts/generate_organizer_hash.mjs",
     "cf-typegen": "wrangler types",
     "postinstall": "wrangler types"
   },

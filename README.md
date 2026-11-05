@@ -55,7 +55,11 @@ Public variables in `wrangler.jsonc`:
 - `TURNSTILE_SITE_KEY`
 - `RESEND_FROM`
 
-Generate the organizer PBKDF2 hash using an approved local secret setup script. Never commit the plain password or generated secrets.
+Generate the organizer PBKDF2 hash locally, then place only the resulting value in a Cloudflare Worker secret. Never commit the plain password or generated hash.
+
+```bash
+npm run organizer:hash
+```
 
 ## Content updates
 
