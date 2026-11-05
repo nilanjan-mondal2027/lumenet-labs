@@ -1,0 +1,19 @@
+import type { Route } from "./+types/home";
+import { SignalField, RevealController } from "../components/signal-field";
+import { StatusTag } from "../components/page";
+import { workshop } from "../content/site";
+import { pageMeta } from "../lib/seo";
+
+export function meta({}: Route.MetaArgs) { return pageMeta("Lumenet Labs | Beyond Answers", "Practical AI education that moves learners from scattered prompts to responsible systems and useful outcomes."); }
+const steps = [["01", "Prompts", "Ask with context, boundaries, and a clear purpose."], ["02", "Workflows", "Connect useful steps instead of repeating isolated tasks."], ["03", "Systems", "Build a method you can test, document, and improve."], ["04", "Outcomes", "Deliver work that stays under human judgement."]];
+const outputs = [["01", "Research briefs", "Move from scattered sources to a traceable decision."], ["02", "Study systems", "Plan, practise, and review without outsourcing your thinking."], ["03", "Project workflows", "Turn an idea into a practical sequence with checks built in."], ["04", "Responsible use", "Protect privacy, verify claims, and respect institutional policy."]];
+
+export default function Home() {
+  return <main id="main-content"><RevealController/>
+    <section className="hero"><SignalField/><div className="hero-grid"><div className="hero-copy"><p className="eyebrow">Lumenet Labs / Practical AI education</p><h1>Beyond <span>answers.</span></h1><p className="hero-lede">Learn to turn AI from a stream of responses into a system for research, study, projects, and responsible execution.</p><div className="hero-actions"><a className="button button-primary" href="/register">Register for 25 November</a><a className="button button-quiet" href="#system">See the system</a></div></div><aside className="hero-aside"><StatusTag>{workshop.status}</StatusTag><p><strong>{workshop.dateLabel}</strong></p><p>{workshop.detailNote}</p></aside></div></section>
+    <div className="signal-strip" aria-hidden="true"><div className="signal-track">{[...Array(2)].flatMap((_, cycle) => ["Structure over noise", "Judgement before output", "Systems beyond prompts", "Useful work", "Responsible AI"].map((text) => <span key={`${cycle}-${text}`}>{text}</span>))}</div></div>
+    <section className="section" id="system"><div className="section-head reveal"><p className="eyebrow">The evolution</p><h2>From scattered prompts to intelligent execution.</h2><p>A practical method for keeping human intent at the centre while AI supports the work around it.</p></div><div className="system-sequence">{steps.map(([n, title, text]) => <article className="system-row reveal" key={n}><span className="number">{n}</span><h3>{title}</h3><p>{text}</p><span className="arrow" aria-hidden="true">↗</span></article>)}</div></section>
+    <section className="section"><div className="output-layout"><div className="output-manifesto reveal"><p className="eyebrow">What changes</p><h2>Not more AI. <em>Better work.</em></h2><p>Each learning experience is organised around an output you can inspect, explain, and improve.</p></div><div className="output-cards">{outputs.map(([n, title, text]) => <article className="output-card reveal" key={n}><span className="index">{n}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div></div></section>
+    <section className="section"><div className="event-panel reveal"><div><p className="eyebrow">Next workshop</p><h2>Evolve with AI</h2><p>A registration-first workshop for learners ready to move from casual tool use to structured practice.</p><div className="button-row"><a className="button button-primary" href="/register">Register now</a><a className="button button-quiet" href="/workshops/2026-11-25">Read workshop note</a></div></div><div className="event-date"><div><p className="eyebrow">Date</p><h2>25 / 11 / 26</h2></div><p>{workshop.detailNote}</p></div></div></section>
+  </main>;
+}

@@ -1,0 +1,5 @@
+import { env } from "cloudflare:workers";import type { Route } from "./+types/registration-status";import { PageHero } from "../components/page";
+import { pageMeta } from "../lib/seo";
+export const meta=()=>pageMeta("Registration status | Lumenet Labs","Private registration status.","/registration/status",true);
+export async function loader({params}:Route.LoaderArgs){const row=await env.DB.prepare("SELECT public_id,status,created_at FROM registrations WHERE public_id=?").bind(params.publicId).first<{public_id:string;status:string;created_at:string}>();if(!row)throw new Response("Not found",{status:404});return {registration:row}}
+export default function Status({loaderData}:Route.ComponentProps){const r=loaderData.registration;return <main id="main-content"><PageHero eyebrow={`Registration ${r.public_id}`} title={r.status==="confirmed"?"Confirmed.":r.status==="pending_guardian"?"Guardian approval pending.":"Registration recorded."} intro="This public status view reveals no personal registration information."/></main>}

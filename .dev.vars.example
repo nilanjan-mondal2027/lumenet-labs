@@ -1,0 +1,6 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+RATE_LIMIT_SECRET=replace_with_at_least_32_random_characters
+SESSION_SECRET=replace_with_at_least_32_random_characters
+ORGANIZER_PASSWORD_HASH=iterations:salt_base64url:hash_base64url
+RESEND_API_KEY=

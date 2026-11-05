@@ -1,0 +1,4 @@
+import { PageHero } from "../components/page";
+import { pageMeta } from "../lib/seo";
+export const meta=()=>pageMeta("Programs | Lumenet Labs","Practical AI learning programs built around judgement, workflows, and explainable work.","/programs");
+export default function Programs(){return <main id="main-content"><PageHero eyebrow="Programs" title="Learn by building the system." intro="Lumenet Labs programs focus on practical judgement, clear workflows, and work learners can explain."/><div className="program-list"><a className="program-item" href="/programs/evolve-with-ai"><span>01</span><h2>Evolve with AI</h2><p>Our practical learning framework for moving from prompts to responsible execution.</p><span>Explore</span></a><a className="program-item" href="/workshops/2026-11-25"><span>02</span><h2>25 November workshop</h2><p>Registration is open. Operational details will follow for confirmed participants.</p><span>Register</span></a></div></main>}
