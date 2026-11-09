@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { z } from "zod";
+import { createRegistrationAccessToken, hashRegistrationAccessToken } from "./registration-access.server";
 
 export const registrationSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
@@ -31,37 +32,50 @@ export function publicId() { return `LUM-${crypto.randomUUID().replaceAll("-", "
 
 export async function verifyTurnstile(token: string, request: Request) {
   const environment = String(env.ENVIRONMENT);
-  if (environment === "development" || environment === "test") return true;
+  const hostname = new URL(request.url).hostname;
+  if (environment === "development" || environment === "test" || hostname === "localhost" || hostname === "127.0.0.1") return true;
   if (!env.TURNSTILE_SECRET_KEY || !token) return false;
   const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: new URLSearchParams({ secret: env.TURNSTILE_SECRET_KEY, response: token, remoteip: request.headers.get("CF-Connecting-IP") || "" }), signal: AbortSignal.timeout(5000) });
   if (!response.ok) return false;
-  const result = await response.json<{ success: boolean }>();
-  return result.success;
+  const result = await response.json<{ success: boolean; action?: string; hostname?: string }>();
+  const expectedHostname = env.TURNSTILE_EXPECTED_HOSTNAME?.trim();
+  return result.success && result.action === "register" && Boolean(expectedHostname && result.hostname === expectedHostname);
 }
 
 export async function enforceRateLimit(request: Request, scope = "register", maximum = 5) {
   const ip = request.headers.get("CF-Connecting-IP") || "local";
   const salt = env.RATE_LIMIT_SECRET || "local-development-only";
   const keyHash = await sha256(`${salt}:${ip}:${scope}`);
-  const now = new Date(); const bucket = now.toISOString().slice(0, 16); const expires = new Date(now.getTime() + 15 * 60_000).toISOString();
+  const now = new Date();
+  const bucket = now.toISOString().slice(0, 16);
+  const expires = new Date(now.getTime() + 15 * 60_000).toISOString();
+  const row = await env.DB.prepare(`
+    INSERT INTO rate_limits (key_hash, bucket_start, request_count, expires_at)
+    VALUES (?, ?, 1, ?)
+    ON CONFLICT(key_hash) DO UPDATE SET
+      bucket_start = CASE WHEN rate_limits.bucket_start = excluded.bucket_start THEN rate_limits.bucket_start ELSE excluded.bucket_start END,
+      request_count = CASE WHEN rate_limits.bucket_start = excluded.bucket_start THEN rate_limits.request_count + 1 ELSE 1 END,
+      expires_at = excluded.expires_at
+    RETURNING request_count
+  `).bind(keyHash, bucket, expires).first<{ request_count: number }>();
+  // Retain only active, salted rate-limit keys. This keeps transient abuse data from
+  // becoming an indefinite record of visitor activity.
   await env.DB.prepare("DELETE FROM rate_limits WHERE expires_at < ?").bind(now.toISOString()).run();
-  const existing = await env.DB.prepare("SELECT request_count, bucket_start FROM rate_limits WHERE key_hash = ?").bind(keyHash).first<{request_count:number;bucket_start:string}>();
-  if (existing?.bucket_start === bucket && existing.request_count >= maximum) return false;
-  if (existing?.bucket_start === bucket) await env.DB.prepare("UPDATE rate_limits SET request_count = request_count + 1, expires_at = ? WHERE key_hash = ?").bind(expires, keyHash).run();
-  else await env.DB.prepare("INSERT OR REPLACE INTO rate_limits (key_hash,bucket_start,request_count,expires_at) VALUES (?,?,1,?)").bind(keyHash,bucket,expires).run();
-  return true;
+  return Boolean(row && row.request_count <= maximum);
 }
 
 export async function createRegistration(input: RegistrationInput) {
   const now = new Date().toISOString(); const id = crypto.randomUUID(); const registrationId = publicId();
   const under18 = input.ageBand === "under_18"; const status = under18 ? "pending_guardian" : "confirmed";
   const guardianToken = under18 ? crypto.randomUUID() + crypto.randomUUID() : null;
-  const statements = [env.DB.prepare(`INSERT INTO registrations (id, public_id, event_id, idempotency_key, full_name, email, school_community, learner_category, age_band, learning_interest, guardian_name, guardian_email, event_consent, privacy_ack, marketing_consent, status, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?,?)`).bind(id, registrationId, "evt_2026_11_25", input.idempotencyKey, input.fullName, input.email, input.schoolCommunity, input.learnerCategory, input.ageBand, input.learningInterest || null, input.guardianName || null, input.guardianEmail || null, input.marketingConsent === "on" ? 1 : 0, status, now, now)];
+  const statusToken = under18 ? null : createRegistrationAccessToken();
+  const statusTokenHash = statusToken ? await hashRegistrationAccessToken(statusToken) : null;
+  const statements = [env.DB.prepare(`INSERT INTO registrations (id, public_id, event_id, idempotency_key, full_name, email, school_community, learner_category, age_band, learning_interest, guardian_name, guardian_email, event_consent, privacy_ack, marketing_consent, status, status_token_hash, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?,?,?)`).bind(id, registrationId, "evt_2026_11_25", input.idempotencyKey, input.fullName, input.email, input.schoolCommunity, input.learnerCategory, input.ageBand, input.learningInterest || null, input.guardianName || null, input.guardianEmail || null, input.marketingConsent === "on" ? 1 : 0, status, statusTokenHash, now, now)];
   if (guardianToken) statements.push(env.DB.prepare("INSERT INTO guardian_consents (id,registration_id,token_hash,guardian_email,status,expires_at,created_at) VALUES (?,?,?,?,?,?,?)").bind(crypto.randomUUID(),id,await sha256(guardianToken),input.guardianEmail,"pending",new Date(Date.now()+7*86400_000).toISOString(),now));
   const emailId = crypto.randomUUID(); const recipient = under18 ? input.guardianEmail : input.email;
   statements.push(env.DB.prepare("INSERT INTO email_messages (id,registration_id,message_type,recipient,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?)").bind(emailId,id,under18?"guardian_consent":"registration_confirmation",recipient,"queued",now,now));
   await env.DB.batch(statements);
-  const message = { emailId, registrationId: id, publicId: registrationId, type: under18 ? "guardian_consent" : "registration_confirmation", recipient, participantName: input.fullName, guardianToken };
+  const message = { emailId, registrationId: id, publicId: registrationId, type: under18 ? "guardian_consent" : "registration_confirmation", recipient, participantName: input.fullName, guardianToken, statusToken };
   try { await env.EMAIL_QUEUE.send(message); } catch { await env.DB.prepare("UPDATE email_messages SET status='retry_pending', last_error='Queue unavailable', updated_at=? WHERE id=?").bind(new Date().toISOString(),emailId).run(); }
   return { publicId: registrationId, status };
 }

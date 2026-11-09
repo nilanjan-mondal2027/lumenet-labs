@@ -8,6 +8,7 @@
     "ENVIRONMENT": "staging",
     "SITE_URL": "https://lumenet-labs-platform-preview.nilanjanmondal2025.workers.dev",
     "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+    "TURNSTILE_EXPECTED_HOSTNAME": "lumenet-labs-platform-preview.nilanjanmondal2025.workers.dev",
     "RESEND_FROM": "Lumenet Labs <workshops@example.invalid>",
     "PREVIEW_AUTH_REQUIRED": "true",
     "PREVIEW_ACCESS_USERNAME": "lumenet-review"
