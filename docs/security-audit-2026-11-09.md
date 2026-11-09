@@ -21,10 +21,10 @@ Reviewed the React Router application, Cloudflare Worker, D1 migrations, Queues,
 
 ## Scan evidence
 
-- `npm audit --omit=dev`: zero vulnerabilities reported on 6 November 2026.
+- `npm audit --omit=dev`: zero vulnerabilities reported on 9 November 2026.
 - GitHub secret scanning: no open alerts reported.
 - Path-only current-tree scan found placeholders and expected secret variable names only. No secret-shaped values were identified.
-- All reachable Git history refs were scanned for common key, token, private-key, and credential patterns. No commit with secret-shaped content was identified.
+- All reachable Git history refs were scanned for common key, token, private-key, and credential patterns. Ten commits were scanned and no commit with secret-shaped content was identified.
 - `.env`, `.dev.vars`, local Worker state, build output, test output, and creative output are ignored by Git. `.env.example` and `.dev.vars.example` contain placeholders only.
 
 ## Findings and repairs
