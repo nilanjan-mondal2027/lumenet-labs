@@ -1,50 +1,58 @@
-# SECURITY
+# Security Policy and Operations
 
-## Secret Handling Rules
-- Store real secrets only in local `.env.local` (for local testing) or Netlify environment variables.
-- Never commit `.env`, `.env.local`, `.env.production`, private keys, token files, or credential exports.
-- Keep `.env.example` placeholder-only.
-- Do not expose server-only secrets in frontend code or `NEXT_PUBLIC_*` variables.
+## Architecture
 
-## If a Secret Is Exposed
-1. Rotate the credential immediately at the provider.
-2. Remove the secret from current files.
-3. Check git history for past exposure.
-4. If history is contaminated, clean with `git filter-repo` or BFG before further public releases.
-5. Re-issue least-privilege credentials.
+The application runs on Cloudflare Workers. Registration data is stored in D1, email jobs use Queues, bot checks use Turnstile, and outbound email uses Resend. There are no private credentials in browser code.
 
-## Static Site Security Baseline (This Project)
-- Strict security headers via `/_headers`:
-  - CSP, HSTS, X-Frame-Options, X-Content-Type-Options, COOP/CORP, Referrer-Policy, Permissions-Policy.
-- No backend API routes in this project.
-- Registration is outbound to Google Forms; no user form payload is processed server-side here.
-- Cookie banner stores only minimal consent preference in `localStorage`.
+## Secret handling
 
-## Abuse Protection Checklist
-- Keep Netlify bot/DDoS protections enabled.
-- Keep all expensive workflows off client-side code.
-- If you add on-site form handling later, add:
-  - rate limiting (per IP),
-  - request validation,
-  - honeypot/CAPTCHA (e.g., Turnstile),
-  - request size limits,
-  - safe error responses.
+Set production secrets with Wrangler or the Cloudflare dashboard:
 
-## Deployment Security Checklist
-- HTTPS enabled (Netlify default).
-- Correct production URL in metadata/canonical tags.
-- No debug secrets in HTML/JS/docs.
-- GitHub secret scanning enabled.
-- Optional pre-push secret scan run (see commands below).
+- `TURNSTILE_SECRET_KEY`
+- `RATE_LIMIT_SECRET`
+- `SESSION_SECRET`
+- `ORGANIZER_PASSWORD_HASH`
+- `RESEND_API_KEY`
+- `WORKSHOP_WHATSAPP_GROUP_URL`
 
-## Optional Secret Scanning Commands
-```bash
-# quick regex scan in tracked files
-git grep -nEi "sk-|ghp_|AKIA|AIza|OPENAI_API_KEY|DATABASE_URL|AWS_SECRET_ACCESS_KEY|CLIENT_SECRET|PRIVATE_KEY"
+Never commit `.dev.vars`, `.env`, exports, database files, provider tokens, passwords, or participant data. `.env.example` and `.dev.vars.example` contain names and placeholders only.
 
-# gitleaks (if installed)
-gitleaks detect --source . --redact
-```
+If a real credential is exposed, rotate it immediately, inspect Git history, and clean history only through a reviewed incident process.
 
-## Reporting Placeholder
-For production vulnerability reports, add a dedicated security contact (email or form) before broad public launch.
+## Controls implemented
+
+- Zod server validation
+- Cloudflare Turnstile verification outside local development
+- Honeypot field
+- Salted IP hash rate limiting with short retention
+- Idempotency keys and unique active email index
+- Guardian approval for under 18 registrations
+- Private, token-gated workshop group invitations only after confirmation
+- PBKDF2-HMAC-SHA-256 organizer password verification with a unique salt and constant-time comparison
+- HMAC-signed HttpOnly Secure SameSite Strict session cookie
+- Origin check on organizer login
+- Organizer authentication on personal data export
+- Spreadsheet formula neutralisation in CSV and XLSX
+- D1 persistence before queue publication
+- Retry state for email delivery failures
+- Signed Resend webhook handling with replay-age validation and idempotent delivery events
+- CSP, HSTS, frame denial, permission restrictions, and no-sniff headers
+- Preview noindex header
+
+## Before production
+
+- Replace all preview resources with production D1 and Queues IDs.
+- Set `ENVIRONMENT=production` only after approval.
+- Use a verified sender domain.
+- Configure a Resend webhook for `email.sent`, `email.delivered`, `email.delivery_delayed`, `email.bounced`, `email.failed`, and `email.suppressed` at `/webhooks/resend`.
+- Replace the temporary legacy `ORGANIZER_PASSWORD` secret with a PBKDF2 `ORGANIZER_PASSWORD_HASH` secret before real participant records are accepted.
+- Run GitHub secret scanning and a local secret scan.
+- Confirm the retention schedule and privacy notice with the responsible adult or organisation.
+- Test guardian consent and email retries with non-participant test addresses.
+- Configure `WORKSHOP_WHATSAPP_GROUP_URL` as a Worker secret. Do not put the group invitation in public source, page content, or static assets.
+- Enable administrator approval for workshop WhatsApp join requests before sharing invitations.
+- Confirm production DNS and route changes explicitly.
+
+## Reporting
+
+Add an approved security contact before public production launch. Do not publish a personal student email as the security address.

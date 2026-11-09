@@ -1,0 +1,25 @@
+import { env } from "cloudflare:workers";
+import type { Route } from "./+types/organizer";
+import { requireOrganizer } from "../lib/auth.server";
+import { PageHero } from "../components/page";
+import { pageMeta } from "../lib/seo";
+
+export const meta = () => pageMeta("Organizer dashboard | Lumenet Labs", "Private workshop operations dashboard.", "/organizer", true);
+
+export async function loader({ request }: Route.LoaderArgs) {
+  await requireOrganizer(request);
+  const registrations = await env.DB.prepare(`
+    SELECT r.public_id, r.full_name, r.email, r.school_community, r.age_band, r.status, r.created_at,
+      gc.status AS guardian_approval_status
+    FROM registrations r
+    LEFT JOIN guardian_consents gc ON gc.registration_id = r.id
+    ORDER BY r.created_at DESC
+    LIMIT 500
+  `).all();
+  const counts = await env.DB.prepare("SELECT status, COUNT(*) count FROM registrations GROUP BY status").all();
+  return { registrations: registrations.results as Array<Record<string, string>>, counts: counts.results as Array<Record<string, string | number>> };
+}
+
+export default function Organizer({ loaderData }: Route.ComponentProps) {
+  return <main id="main-content"><PageHero eyebrow="Organizer" title="Workshop operations." intro="Private registration view. Exported files contain personal data and must remain access controlled."><div className="button-row"><a className="button button-primary" href="/organizer/export?format=xlsx">Export Excel</a><a className="button button-quiet" href="/organizer/export?format=csv">Export CSV</a></div></PageHero><div className="content-grid"><div className="content-main" style={{ gridColumn: "1 / -1", overflowX: "auto" }}><p>{loaderData.counts.map((count) => `${count.status}: ${count.count}`).join(" | ") || "No registrations"}</p><table className="organizer-table"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>School or community</th><th>Age</th><th>Registration status</th><th>Guardian approval</th><th>Created</th></tr></thead><tbody>{loaderData.registrations.map((row) => <tr key={row.public_id}><td>{row.public_id}</td><td>{row.full_name}</td><td>{row.email}</td><td>{row.school_community}</td><td>{row.age_band}</td><td>{row.status}</td><td>{row.guardian_approval_status || "Not applicable"}</td><td>{row.created_at}</td></tr>)}</tbody></table></div></div></main>;
+}

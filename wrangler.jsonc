@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lumenet-labs-platform-preview",
+  "compatibility_date": "2026-11-05",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./workers/app.ts",
+  "vars": {
+    "ENVIRONMENT": "staging",
+    "SITE_URL": "https://lumenet-labs-platform-preview.nilanjanmondal2025.workers.dev",
+    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+    "TURNSTILE_EXPECTED_HOSTNAME": "lumenet-labs-platform-preview.nilanjanmondal2025.workers.dev",
+    "RESEND_FROM": "Lumenet Labs <workshops@example.invalid>",
+    "PREVIEW_AUTH_REQUIRED": "true",
+    "PREVIEW_ACCESS_USERNAME": "lumenet-review"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "lumenet-platform-preview",
+    "database_id": "ea6553ae-4ab9-45f6-8b05-e41a14403add",
+    "migrations_dir": "migrations"
+  }],
+  "queues": {
+    "producers": [{"binding":"EMAIL_QUEUE","queue":"lumenet-email-preview"}],
+    "consumers": [{"queue":"lumenet-email-preview","max_batch_size":5,"max_batch_timeout":10,"max_retries":3,"dead_letter_queue":"lumenet-email-preview-dlq"}]
+  },
+  "observability": {"enabled":true,"head_sampling_rate":0.1},
+  "upload_source_maps": false
+}

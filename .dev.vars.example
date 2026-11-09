@@ -1,0 +1,9 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+TURNSTILE_EXPECTED_HOSTNAME=localhost
+RATE_LIMIT_SECRET=replace_with_at_least_32_random_characters
+SESSION_SECRET=replace_with_at_least_32_random_characters
+ORGANIZER_PASSWORD_HASH=pbkdf2-sha256$310000$replace_with_base64url_salt$replace_with_base64url_digest
+RESEND_API_KEY=
+RESEND_WEBHOOK_SECRET=
+WORKSHOP_WHATSAPP_GROUP_URL=

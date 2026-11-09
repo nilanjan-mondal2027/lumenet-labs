@@ -1,90 +1,85 @@
-# Lumenet Labs: Beyond Answers
+# Lumenet Labs Platform
 
-A premium, lightweight landing page for **Lumenet Labs Presents: Evolve with AI**, a free live 8-day AI workshop for students and early builders.
+A privacy-aware, mobile-first learning and registration platform for Lumenet Labs. The 2026 rebuild translates the Beyond Answers idea into a practical system: prompts, workflows, systems, and outcomes.
 
-The site is designed around one strategic idea: **Beyond Answers**. It positions Lumenet Labs as more than prompt tips or AI hype. The experience moves visitors from scattered AI use toward workflows, systems, and practical outcomes.
+## Stack
 
-## What This Website Is
+- React Router 8 and React 19
+- TypeScript
+- Tailwind CSS build pipeline with a custom authored design system
+- Cloudflare Workers
+- Cloudflare D1
+- Cloudflare Queues
+- Cloudflare Turnstile
+- Resend email delivery
+- Vitest, Playwright, and axe
 
-This is a static, Netlify-ready website built with:
+No browser API key, paid SDK, heavy animation framework, or remote font service is used.
 
-- **HTML** for semantic structure
-- **CSS** for the full visual system, responsive layout, typography, and motion
-- **Vanilla JavaScript** for the mobile menu, reveal animations, registration link handling, copy shortcut, and lightweight canvas signal field
-- **Netlify redirects and headers** for production routing, security headers, and cache control
-
-There is no React, Next.js, Vite, backend server, database, paid API, or heavy animation framework required.
-
-## Design Direction
-
-The website uses a restrained editorial brand world:
-
-- Deep near-black backgrounds
-- Metallic gold hierarchy
-- Muted neutral reading text
-- Soft cyan signal accents
-- Large expressive typography
-- Lightweight canvas particles that suggest intelligence forming from noise
-- Mobile-first layouts built for Instagram's in-app browser
-
-The goal is premium without being bloated.
-
-## Event Details
-
-- **Event:** Lumenet Labs Presents: Evolve with AI
-- **Concept:** Beyond Answers
-- **Dates:** 1 July to 8 July 2026
-- **Time:** 7:30 PM to 9:30 PM IST
-- **Format:** Live online via Zoom
-- **Duration:** 8 days, 16 total guided hours
-- **Cost:** Free
-- **Certificate:** Available for active participants
-
-## Registration
-
-Primary registration goes to the Google Form:
-
-`https://docs.google.com/forms/d/e/1FAIpQLSeDVzOZRa7Wltxo0KVpDZaRwOVljjysP6djv6Yxxqyx-yvAIw/viewform?usp=send_form`
-
-## Local Preview
-
-From the project folder:
+## Local setup
 
 ```bash
-python3 -m http.server 8090
+npm install
+cp .dev.vars.example .dev.vars
+npm run db:migrate:local
+npm run db:seed:local
+npm run dev
 ```
 
-Then open:
+Open the local URL printed by React Router. Localhost bypasses Turnstile only for synthetic local testing. Deployed preview and production requests always require server-side Turnstile verification.
 
-```text
-http://127.0.0.1:8090/index.html
+## Verification
+
+```bash
+npm run typecheck
+npm run test
+npm run build
+npm run test:e2e
+npm run check:copy
 ```
 
-## Build
+## Registration configuration
 
-No build step is required.
+Required Worker secrets:
 
-## Netlify Settings
+- `TURNSTILE_SECRET_KEY`
+- `TURNSTILE_EXPECTED_HOSTNAME`
+- `RATE_LIMIT_SECRET`
+- `SESSION_SECRET`
+- `ORGANIZER_PASSWORD_HASH`
+- `RESEND_API_KEY`
+- `RESEND_WEBHOOK_SECRET`
+- `WORKSHOP_WHATSAPP_GROUP_URL`
 
-- **Build command:** leave empty
-- **Publish directory:** `.`
-- **Deploy source:** GitHub repository
-- **Branch:** `main`
+Public variables in `wrangler.jsonc`:
 
-Netlify should automatically redeploy whenever `main` is pushed.
+- `ENVIRONMENT`
+- `SITE_URL`
+- `TURNSTILE_SITE_KEY`
+- `RESEND_FROM`
 
-## Production Files
+Set the organizer credential only as a Cloudflare Worker secret. `ORGANIZER_PASSWORD_HASH` must use the PBKDF2-HMAC-SHA-256 format created by `scripts/generate-organizer-password-hash.mjs`, with a unique password of at least 20 characters. It is never committed or sent to the browser. Login attempts are rate limited and successful sessions are signed, HttpOnly, Secure, and SameSite Strict.
 
-- `index.html`: homepage
-- `404.html`: branded custom error page
-- `assets/css/styles.css`: design system and responsive styling
-- `assets/js/main.js`: lightweight interaction layer
-- `_redirects`: registration redirect and custom 404 behavior
-- `_headers`: security and cache headers
-- `assets/img/`: favicon, social image, and optional QR image
+The WhatsApp group invitation is a Worker secret, not public page content. It is included only in a confirmed participant email and a token-gated confirmed registration status page. Under 18 invitations are released only after guardian approval. Configure WhatsApp administrator approval for join requests before launch.
 
-## Privacy And Security
+Resend accepting an API request is recorded as `provider_accepted`. Only a verified `email.delivered` webhook changes the record to `delivered`. Configure the Resend webhook at `/webhooks/resend` using `RESEND_WEBHOOK_SECRET` before testing live delivery.
 
-The site does not collect user data directly. Registration happens through Google Forms. The website does not include analytics by default, does not use cookies for tracking, and does not expose API keys or backend credentials.
+## Content updates
 
-See `SECURITY.md` and `PRIVACY-CHECKLIST.md` for deployment safety notes.
+- Verified public facts: `app/content/fact-register.ts`
+- Workshop and site content: `app/content/site.ts`
+- Database event details: `events` table
+- Learning kits: `public/downloads`
+
+Time, venue, delivery format, capacity, fee, facilitator list, and final agenda for 25 November 2026 remain unpublished until confirmed.
+
+## Deployment
+
+The target is a separate Cloudflare Worker preview first. Do not route the production hostname until preview QA, privacy approval, school publication approval, and email domain verification are complete.
+
+```bash
+npm run check
+npx wrangler deploy --dry-run
+```
+
+See `docs/architecture.md` for the platform comparison and production checklist.
