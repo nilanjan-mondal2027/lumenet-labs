@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { verifyOrganizerPasswordHash } from "./password-hash";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -49,16 +50,16 @@ async function verifyHmac(value: string, signature: string) {
 export async function verifyPassword(password: string) {
   try {
     if (!password || password.length > 1024) return false;
-    const candidateHash = await sha256Hex(password);
-    const configuredHash = env.ORGANIZER_PASSWORD_HASH?.trim().toLowerCase().replace(/^sha256:/, "");
+    const configuredHash = env.ORGANIZER_PASSWORD_HASH?.trim();
 
-    // Prefer a stored SHA-256 digest so the organizer password is never a Worker secret value.
+    // PBKDF2 with a unique salt is the required production verifier format.
     if (configuredHash) {
-      return /^[a-f0-9]{64}$/.test(configuredHash) && constantTimeEqual(candidateHash, configuredHash);
+      return verifyOrganizerPasswordHash(password, configuredHash);
     }
 
+    // Temporary migration compatibility only. Remove after ORGANIZER_PASSWORD_HASH is set.
     const configuredPassword = env.ORGANIZER_PASSWORD?.trim();
-    return configuredPassword ? constantTimeEqual(candidateHash, await sha256Hex(configuredPassword)) : false;
+    return configuredPassword ? constantTimeEqual(await sha256Hex(password), await sha256Hex(configuredPassword)) : false;
   } catch {
     return false;
   }

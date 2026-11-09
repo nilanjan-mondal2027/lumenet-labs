@@ -13,6 +13,7 @@ Reviewed the React Router application, Cloudflare Worker, D1 migrations, Queues,
 - Private registration access tokens and guardian consent tokens are stored as SHA-256 hashes.
 - The WhatsApp invitation is a Worker secret. It is absent from public pages and non-token status pages, and is offered only after confirmation. Guardian emails do not receive it.
 - Organizer routes and spreadsheet exports require an HMAC-signed, `HttpOnly`, `Secure`, `SameSite=Strict` session cookie.
+- Organizer password verifiers use PBKDF2-HMAC-SHA-256 with a unique salt and 310,000 iterations when `ORGANIZER_PASSWORD_HASH` is configured.
 - CSV and XLSX export helpers neutralise spreadsheet formulas. Export responses use `Cache-Control: no-store`.
 - Preview Basic Auth uses a constant-time comparison, returns `401`, and adds `Cache-Control: no-store` before application handling.
 - Preview responses set noindex, content-type, framing, referrer, permission, HSTS, and CSP headers.
@@ -36,12 +37,12 @@ No high-severity issue was identified in the reviewed source or reachable Git hi
 
 1. Dependabot alerts are disabled in the GitHub repository. Enable Dependabot alerts in GitHub repository settings before production approval. This requires a repository administrator and is not changed by this audit.
 2. The Content Security Policy retains `unsafe-inline` for script and style compatibility with the current React build and Turnstile integration. This is a residual risk. Replace it with nonce or hash-based CSP only as a separately tested architecture change.
-3. Live transactional delivery is not configured in preview. `RESEND_API_KEY` is absent and `RESEND_FROM` remains an invalid preview sender. Queue behavior was tested only as `preview_suppressed`; no real email was sent.
+3. Live transactional delivery is not configured in preview. `RESEND_API_KEY` is absent and `RESEND_FROM` remains an invalid preview sender. Queue behavior was tested only as `preview_suppressed`; no real email was sent. A signed Resend webhook endpoint is ready but needs its encrypted secret and dashboard configuration.
 4. Authenticated remote preview testing is blocked by the existing Basic Auth password, which was not retrieved or changed during this audit. The unauthenticated remote response was verified as `401` with `no-store`.
 
 ### Low severity
 
-- `ORGANIZER_PASSWORD` remains supported for backward compatibility. Move to `ORGANIZER_PASSWORD_HASH` before production and use a long unique organizer password.
+- `ORGANIZER_PASSWORD` remains supported only as a short migration fallback. Configure a PBKDF2 `ORGANIZER_PASSWORD_HASH`, verify login, then remove the legacy secret before production.
 - A direct Google Sheets sync is intentionally deferred. D1 plus protected Excel and CSV export is the safer, lower-complexity system of record until private OAuth or service-account ownership and failure handling are approved.
 
 ## Release gate

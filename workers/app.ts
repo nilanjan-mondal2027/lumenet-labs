@@ -1,6 +1,7 @@
 import { createRequestHandler } from "react-router";
 import { env } from "cloudflare:workers";
 import { buildEmailContent, type EmailJob } from "./email-content";
+import { handleResendWebhook } from "./resend-webhook";
 
 const requestHandler = createRequestHandler(
   () => import("virtual:react-router/server-build"),
@@ -75,13 +76,19 @@ async function sendEmail(job: EmailJob) {
   if (!response.ok) throw new Error(`Email provider returned ${response.status}`);
 
   const data = await response.json<{ id: string }>();
-  await env.DB.prepare("UPDATE email_messages SET status='sent',provider_id=?,attempts=attempts+1,last_error=NULL,updated_at=? WHERE id=?")
+  // A successful API call means Resend accepted the message. Delivery is recorded
+  // only after a verified email.delivered webhook reaches this Worker.
+  await env.DB.prepare("UPDATE email_messages SET status='provider_accepted',provider_id=?,attempts=attempts+1,last_error=NULL,updated_at=? WHERE id=?")
     .bind(data.id, new Date().toISOString(), job.emailId)
     .run();
 }
 
 export default {
   async fetch(request: Request) {
+    if (new URL(request.url).pathname === "/webhooks/resend") {
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: { Allow: "POST" } });
+      return handleResendWebhook(request, env.DB, env.RESEND_WEBHOOK_SECRET);
+    }
     if (!await validPreviewCredentials(request)) return unauthorized();
     const original = await requestHandler(request);
     const response = new Response(original.body, original);

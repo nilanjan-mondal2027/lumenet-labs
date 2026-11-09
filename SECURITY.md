@@ -28,13 +28,14 @@ If a real credential is exposed, rotate it immediately, inspect Git history, and
 - Idempotency keys and unique active email index
 - Guardian approval for under 18 registrations
 - Private, token-gated workshop group invitations only after confirmation
-- Server-only organizer password verification with constant-time comparison
+- PBKDF2-HMAC-SHA-256 organizer password verification with a unique salt and constant-time comparison
 - HMAC-signed HttpOnly Secure SameSite Strict session cookie
 - Origin check on organizer login
 - Organizer authentication on personal data export
 - Spreadsheet formula neutralisation in CSV and XLSX
 - D1 persistence before queue publication
 - Retry state for email delivery failures
+- Signed Resend webhook handling with replay-age validation and idempotent delivery events
 - CSP, HSTS, frame denial, permission restrictions, and no-sniff headers
 - Preview noindex header
 
@@ -43,6 +44,8 @@ If a real credential is exposed, rotate it immediately, inspect Git history, and
 - Replace all preview resources with production D1 and Queues IDs.
 - Set `ENVIRONMENT=production` only after approval.
 - Use a verified sender domain.
+- Configure a Resend webhook for `email.sent`, `email.delivered`, `email.delivery_delayed`, `email.bounced`, `email.failed`, and `email.suppressed` at `/webhooks/resend`.
+- Replace the temporary legacy `ORGANIZER_PASSWORD` secret with a PBKDF2 `ORGANIZER_PASSWORD_HASH` secret before real participant records are accepted.
 - Run GitHub secret scanning and a local secret scan.
 - Confirm the retention schedule and privacy notice with the responsible adult or organisation.
 - Test guardian consent and email retries with non-participant test addresses.

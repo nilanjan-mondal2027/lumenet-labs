@@ -7,6 +7,7 @@ declare namespace Cloudflare {
     ORGANIZER_PASSWORD?: string;
     ORGANIZER_PASSWORD_HASH?: string;
     RESEND_API_KEY?: string;
+    RESEND_WEBHOOK_SECRET?: string;
     PREVIEW_ACCESS_PASSWORD?: string;
     WORKSHOP_WHATSAPP_GROUP_URL?: string;
   }
@@ -19,6 +20,7 @@ interface Env {
   ORGANIZER_PASSWORD?: string;
   ORGANIZER_PASSWORD_HASH?: string;
   RESEND_API_KEY?: string;
+  RESEND_WEBHOOK_SECRET?: string;
   PREVIEW_ACCESS_PASSWORD?: string;
   WORKSHOP_WHATSAPP_GROUP_URL?: string;
 }
