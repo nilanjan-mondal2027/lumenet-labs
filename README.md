@@ -26,7 +26,7 @@ npm run db:seed:local
 npm run dev
 ```
 
-Open the local URL printed by React Router. Local development bypasses Turnstile when `ENVIRONMENT` is `development`.
+Open the local URL printed by React Router. Localhost bypasses Turnstile only for synthetic local testing. Deployed preview and production requests always require server-side Turnstile verification.
 
 ## Verification
 
@@ -43,10 +43,12 @@ npm run check:copy
 Required Worker secrets:
 
 - `TURNSTILE_SECRET_KEY`
+- `TURNSTILE_EXPECTED_HOSTNAME`
 - `RATE_LIMIT_SECRET`
 - `SESSION_SECRET`
-- `ORGANIZER_PASSWORD`
+- `ORGANIZER_PASSWORD_HASH` or the legacy `ORGANIZER_PASSWORD`
 - `RESEND_API_KEY`
+- `WORKSHOP_WHATSAPP_GROUP_URL`
 
 Public variables in `wrangler.jsonc`:
 
@@ -55,7 +57,9 @@ Public variables in `wrangler.jsonc`:
 - `TURNSTILE_SITE_KEY`
 - `RESEND_FROM`
 
-Set `ORGANIZER_PASSWORD` only as a Cloudflare Worker secret. Use a unique password of at least 20 characters. It is never committed or sent to the browser. Login attempts are rate limited and successful sessions are signed, HttpOnly, Secure, and SameSite Strict.
+Set the organizer credential only as a Cloudflare Worker secret. Prefer a lower-case SHA-256 digest in `ORGANIZER_PASSWORD_HASH`, created from a unique password of at least 20 characters. It is never committed or sent to the browser. Login attempts are rate limited and successful sessions are signed, HttpOnly, Secure, and SameSite Strict.
+
+The WhatsApp group invitation is a Worker secret, not public page content. It is included only in a confirmed participant email and a token-gated confirmed registration status page. Under 18 invitations are released only after guardian approval. Configure WhatsApp administrator approval for join requests before launch.
 
 ## Content updates
 
